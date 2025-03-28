@@ -445,12 +445,13 @@ function PureBlock({
 
               <BlockActions
                 block={block}
-                currentVersionIndex={currentVersionIndex}
                 handleVersionChange={handleVersionChange}
+                currentVersionIndex={currentVersionIndex}
                 isCurrentVersion={isCurrentVersion}
                 mode={mode}
                 metadata={metadata}
                 setMetadata={setMetadata}
+                onSaveContent={(content, debounce = false) => saveContent(content, debounce)}
               />
             </div>
 

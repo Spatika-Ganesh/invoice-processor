@@ -26,6 +26,8 @@ const PureSpreadsheetEditor = ({
   isCurrentVersion,
 }: SheetEditorProps) => {
   const { theme } = useTheme();
+  const [sortColumn, setSortColumn] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<'ASC' | 'DESC'>('ASC');
 
   const parseData = useMemo(() => {
     if (!content) return Array(MIN_ROWS).fill(Array(MIN_COLS).fill(''));
@@ -65,13 +67,35 @@ const PureSpreadsheetEditor = ({
       cellClass: cn(`border-t dark:bg-zinc-950 dark:text-zinc-50`, {
         'border-l': i !== 0,
       }),
-      headerCellClass: cn(`border-t dark:bg-zinc-900 dark:text-zinc-50`, {
+      headerCellClass: cn(`border-t dark:bg-zinc-900 dark:text-zinc-50 cursor-pointer hover:bg-zinc-800`, {
         'border-l': i !== 0,
       }),
+      sortable: true,
+      onSort: (colKey: string) => {
+        if (sortColumn === colKey) {
+          setSortDirection(sortDirection === 'ASC' ? 'DESC' : 'ASC');
+        } else {
+          setSortColumn(colKey);
+          setSortDirection('ASC');
+        }
+      },
+      renderHeaderCell: ({ column }: { column: any }) => {
+        const isSorted = sortColumn === column.key;
+        return (
+          <div className="flex items-center gap-1">
+            <span>{column.name}</span>
+            {isSorted && (
+              <span className="text-xs">
+                {sortDirection === 'ASC' ? '↑' : '↓'}
+              </span>
+            )}
+          </div>
+        );
+      },
     }));
 
     return [rowNumberColumn, ...dataColumns];
-  }, []);
+  }, [sortColumn, sortDirection]);
 
   const initialRows = useMemo(() => {
     return parseData.map((row, rowIndex) => {
@@ -109,11 +133,32 @@ const PureSpreadsheetEditor = ({
     saveContent(newCsvContent, true);
   };
 
+  const sortedRows = useMemo(() => {
+    if (!sortColumn) return localRows;
+
+    return [...localRows].sort((a, b) => {
+      const aValue = a[sortColumn];
+      const bValue = b[sortColumn];
+
+      // Handle numeric values
+      const aNum = parseFloat(aValue);
+      const bNum = parseFloat(bValue);
+      if (!isNaN(aNum) && !isNaN(bNum)) {
+        return sortDirection === 'ASC' ? aNum - bNum : bNum - aNum;
+      }
+
+      // Handle string values
+      return sortDirection === 'ASC'
+        ? String(aValue).localeCompare(String(bValue))
+        : String(bValue).localeCompare(String(aValue));
+    });
+  }, [localRows, sortColumn, sortDirection]);
+
   return (
     <DataGrid
       className={theme === 'dark' ? 'rdg-dark' : 'rdg-light'}
       columns={columns}
-      rows={localRows}
+      rows={sortedRows}
       enableVirtualization
       onRowsChange={handleRowsChange}
       onCellClick={(args) => {

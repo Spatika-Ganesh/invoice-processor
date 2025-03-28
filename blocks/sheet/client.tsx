@@ -46,6 +46,7 @@ export const sheetBlock = new Block<'sheet', Metadata>({
   actions: [
     {
       icon: <UndoIcon size={18} />,
+      label: 'Previous',
       description: 'View Previous version',
       onClick: ({ handleVersionChange }) => {
         handleVersionChange('prev');
@@ -54,12 +55,12 @@ export const sheetBlock = new Block<'sheet', Metadata>({
         if (currentVersionIndex === 0) {
           return true;
         }
-
         return false;
       },
     },
     {
       icon: <RedoIcon size={18} />,
+      label: 'Next',
       description: 'View Next version',
       onClick: ({ handleVersionChange }) => {
         handleVersionChange('next');
@@ -68,24 +69,96 @@ export const sheetBlock = new Block<'sheet', Metadata>({
         if (isCurrentVersion) {
           return true;
         }
-
         return false;
       },
     },
     {
       icon: <CopyIcon />,
+      label: 'Copy CSV',
       description: 'Copy as .csv',
       onClick: ({ content }) => {
         const parsed = parse<string[]>(content, { skipEmptyLines: true });
-
         const nonEmptyRows = parsed.data.filter((row) =>
           row.some((cell) => cell.trim() !== ''),
         );
-
         const cleanedCsv = unparse(nonEmptyRows);
-
         navigator.clipboard.writeText(cleanedCsv);
         toast.success('Copied csv to clipboard!');
+      },
+    },
+    {
+      icon: <SparklesIcon size={18} />,
+      label: 'Save',
+      description: 'Save Changes',
+      onClick: ({ content, onSaveContent }) => {
+        onSaveContent(content);
+        toast.success('Changes saved successfully!');
+      },
+    },
+    {
+      icon: <LineChartIcon size={18} />,
+      label: 'Sort Date',
+      description: 'Sort by Date',
+      onClick: ({ content, onSaveContent }) => {
+        const parsed = parse<string[]>(content, { skipEmptyLines: true });
+        if (parsed.data.length < 2) return;
+        
+        const [headers, ...rows] = parsed.data;
+        const dateIndex = headers.indexOf('Invoice Date');
+        if (dateIndex === -1) return;
+
+        const sortedRows = rows.sort((a, b) => {
+          const dateA = new Date(a[dateIndex]).getTime();
+          const dateB = new Date(b[dateIndex]).getTime();
+          return dateB - dateA; // Sort in descending order (newest first)
+        });
+
+        const newContent = unparse([headers, ...sortedRows]);
+        onSaveContent(newContent);
+      },
+    },
+    {
+      icon: <LineChartIcon size={18} />,
+      label: 'Sort Amount',
+      description: 'Sort by Amount',
+      onClick: ({ content, onSaveContent }) => {
+        const parsed = parse<string[]>(content, { skipEmptyLines: true });
+        if (parsed.data.length < 2) return;
+        
+        const [headers, ...rows] = parsed.data;
+        const amountIndex = headers.indexOf('Amount');
+        if (amountIndex === -1) return;
+
+        const sortedRows = rows.sort((a, b) => {
+          const amountA = parseFloat(a[amountIndex]) || 0;
+          const amountB = parseFloat(b[amountIndex]) || 0;
+          return amountB - amountA; // Sort in descending order (highest first)
+        });
+
+        const newContent = unparse([headers, ...sortedRows]);
+        onSaveContent(newContent);
+      },
+    },
+    {
+      icon: <LineChartIcon size={18} />,
+      label: 'Sort Vendor',
+      description: 'Sort by Vendor',
+      onClick: ({ content, onSaveContent }) => {
+        const parsed = parse<string[]>(content, { skipEmptyLines: true });
+        if (parsed.data.length < 2) return;
+        
+        const [headers, ...rows] = parsed.data;
+        const vendorIndex = headers.indexOf('Vendor Name');
+        if (vendorIndex === -1) return;
+
+        const sortedRows = rows.sort((a, b) => {
+          const vendorA = (a[vendorIndex] || '').toLowerCase();
+          const vendorB = (b[vendorIndex] || '').toLowerCase();
+          return vendorA.localeCompare(vendorB);
+        });
+
+        const newContent = unparse([headers, ...sortedRows]);
+        onSaveContent(newContent);
       },
     },
   ],

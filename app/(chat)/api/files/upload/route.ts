@@ -85,19 +85,19 @@ export async function POST(request: Request) {
       // Create data URL for immediate preview
       const dataURL = `data:${file.type};base64,${base64Content}`;
 
+      // TODO: If duplicate file, return that file id and allow to query maybe
+      // const isDuplicate = await checkDuplicateInvoiceFile({ userId: session.user.id, content: base64Content });
 
-      const isDuplicate = await checkDuplicateInvoiceFile({ userId: session.user.id, content: base64Content });
+      // if (isDuplicate) {
+      //   return NextResponse.json({ error: 'File already processed' }, { status: 400 });
+      // }
 
-      if (isDuplicate) {
-        return NextResponse.json({ error: 'File already processed' }, { status: 400 });
-      }
+      // TODO: Validate invoice content - commented out for rate limiting errors
+      // const isInvoice = await validateInvoiceContent(base64Content);
 
-
-      const isInvoice = await validateInvoiceContent(base64Content);
-
-      if (!isInvoice) {
-        return NextResponse.json({ error: 'File is not an invoice' }, { status: 400 });
-      }
+      // if (!isInvoice) {
+      //   return NextResponse.json({ error: 'File is not an invoice' }, { status: 400 });
+      // }
 
       const invoiceFile = await createInvoiceFile({
         userId: session.user.id,

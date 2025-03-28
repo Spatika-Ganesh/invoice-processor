@@ -14,6 +14,7 @@ interface BlockActionsProps {
   mode: 'edit' | 'diff';
   metadata: any;
   setMetadata: Dispatch<SetStateAction<any>>;
+  onSaveContent: (content: string, debounce?: boolean) => void;
 }
 
 function PureBlockActions({
@@ -24,6 +25,7 @@ function PureBlockActions({
   mode,
   metadata,
   setMetadata,
+  onSaveContent,
 }: BlockActionsProps) {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -43,6 +45,7 @@ function PureBlockActions({
     mode,
     metadata,
     setMetadata,
+    onSaveContent,
   };
 
   return (

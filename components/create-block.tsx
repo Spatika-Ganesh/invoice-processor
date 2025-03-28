@@ -12,6 +12,7 @@ export type BlockActionContext<M = any> = {
   mode: 'edit' | 'diff';
   metadata: M;
   setMetadata: Dispatch<SetStateAction<M>>;
+  onSaveContent: (content: string, debounce?: boolean) => void;
 };
 
 type BlockAction<M = any> = {
