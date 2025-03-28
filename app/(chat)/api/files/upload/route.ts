@@ -5,6 +5,7 @@ import { validateInvoicePrompt } from '@/lib/ai/prompts';
 import { myProvider } from '@/lib/ai/models';
 import { streamObject, generateObject } from 'ai';
 import { LanguageModelV1Prompt } from 'ai';
+import { checkDuplicateInvoiceFile, createInvoiceFile } from '@/lib/db/queries';
 // Use Blob instead of File since File is not available in Node.js environment
 const FileSchema = z.object({
   file: z
@@ -90,11 +91,23 @@ export async function POST(request: Request) {
       const dataURL = `data:${file.type};base64,${base64Content}`;
 
 
-      // TODO: SAVE THE FILE TO THE DATABASE 
+      const isDuplicate = await checkDuplicateInvoiceFile({ userId: session.user.id, content: base64Content });
+
+      if (isDuplicate) {
+        return NextResponse.json({ error: 'File already processed' }, { status: 400 });
+      }
+
+      const invoiceFile = await createInvoiceFile({
+        userId: session.user.id,
+        title: filename,
+        kind: file.type.startsWith('image/') ? 'image' : 'pdf',
+        content: base64Content,
+      });
       return NextResponse.json({
         url: dataURL,
         pathname: `/uploads/${uniqueFilename}`,
         contentType: file.type,
+        invoiceFileId: invoiceFile.id,
       });
     } catch (error) {
       return NextResponse.json({ error: 'Upload failed' }, { status: 500 });

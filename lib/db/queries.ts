@@ -11,6 +11,7 @@ import {
   type Message,
   message,
   vote,
+  invoiceFile,
 } from './schema';
 import type { BlockKind } from '@/components/block';
 
@@ -319,4 +320,50 @@ export async function updateChatVisiblityById({
     console.error('Failed to update chat visibility in database');
     throw error;
   }
+}
+
+
+// Invoice File Queries
+export async function createInvoiceFile(data: {
+  userId: string;
+  title: string;
+  kind: 'image' | 'pdf';
+  content: string;
+}) {
+  const [file] = await db
+    .insert(invoiceFile)
+    .values({
+      ...data,
+      createdAt: new Date(),
+    })
+    .returning();
+  return file;
+}
+
+export async function checkDuplicateInvoiceFile({
+  userId,
+  content,
+}: {
+  userId: string;
+  content: string;
+}) {
+  const [existingFile] = await db
+    .select()
+    .from(invoiceFile)
+    .where(
+      and(
+        eq(invoiceFile.userId, userId),
+        eq(invoiceFile.content, content)
+      )
+    );
+  return existingFile !== undefined;
+}
+
+
+export async function getInvoiceFileById(id: string) {
+  const [file] = await db
+    .select()
+    .from(invoiceFile)
+    .where(eq(invoiceFile.id, id));
+  return file;
 }

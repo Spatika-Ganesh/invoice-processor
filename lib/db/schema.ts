@@ -5,6 +5,7 @@ import {
   blob,
   foreignKey,
   primaryKey,
+  uniqueIndex,
 } from 'drizzle-orm/sqlite-core';
 import type { InferSelectModel } from 'drizzle-orm';
 
@@ -99,3 +100,24 @@ export const suggestion = sqliteTable(
 );
 
 export type Suggestion = InferSelectModel<typeof suggestion>;
+
+export const invoiceFile = sqliteTable(
+  'InvoiceFile',
+  {
+    id: text('id').primaryKey().notNull().$defaultFn(() => {
+      return crypto.randomUUID();
+    }),
+    userId: text('userId').notNull(),
+    title: text('title').notNull(),
+    kind: text('kind')
+      .notNull()
+      .$type<'image' | 'pdf'>(),
+    content: text('content').notNull(),
+    createdAt: integer('createdAt', { mode: 'timestamp' }).notNull(),
+  },
+  (table) => ({
+    uniqueContent: uniqueIndex('unique_content_user').on(table.content, table.userId),
+  }),
+);
+
+export type InvoiceFile = InferSelectModel<typeof invoiceFile>;
