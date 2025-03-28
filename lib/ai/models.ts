@@ -33,6 +33,6 @@ export const chatModels: Array<ChatModel> = [
   {
     id: 'pdf-model',
     name: 'PDF Processing model',
-    description: 'pdf processing model for extracting text from pdfs',
+    description: 'Claude 3.5 Sonnet model for working with pdfs',
   },
 ];

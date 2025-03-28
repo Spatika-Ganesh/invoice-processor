@@ -105,6 +105,7 @@ export async function POST(request: Request) {
                   };
                 }),
               });
+              // TODO: save the invoice to the database
             } catch (error) {
               console.error('Failed to save chat');
             }

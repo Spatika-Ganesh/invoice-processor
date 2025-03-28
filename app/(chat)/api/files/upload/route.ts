@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { auth } from '@/app/(auth)/auth';
-
+import { validateInvoicePrompt } from '@/lib/ai/prompts';
+import { myProvider } from '@/lib/ai/models';
+import { streamObject, generateObject } from 'ai';
+import { LanguageModelV1Prompt } from 'ai';
 // Use Blob instead of File since File is not available in Node.js environment
 const FileSchema = z.object({
   file: z
@@ -10,11 +13,30 @@ const FileSchema = z.object({
       message: 'File size should be less than 5MB',
     })
     // Update the file type based on the kind of files you want to accept
-    .refine((file) => ['image/jpeg', 'image/png'].includes(file.type), {
-      message: 'File type should be JPEG or PNG',
-    }),
+    .refine((file) => ['image/jpeg', 'image/png', 'application/pdf'].includes(file.type), {
+        message: 'File type should be JPEG, PNG, or PDF',
+      },
+    ),
 });
 
+async function validateInvoiceContent(content: string): Promise<boolean> {
+  const model = myProvider.languageModel('pdf-model');
+  try {
+    const { object } = await generateObject({
+      model,
+      system: validateInvoicePrompt,
+      prompt: content,
+      schema: z.object({
+        isValid: z.boolean()
+      }),
+    });
+
+    return object.isValid;
+  } catch (error) {
+    console.error("Error validating invoice content", error);
+    return false;
+  }
+}
 export async function POST(request: Request) {
   const session = await auth();
 
@@ -49,14 +71,26 @@ export async function POST(request: Request) {
     const fileBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(fileBuffer);
 
+    const base64Content = buffer.toString('base64');
+
     try {
+      
+      const isInvoice = await validateInvoiceContent(base64Content);
+
+      if (!isInvoice) {
+        return NextResponse.json({ error: 'File is not an invoice' }, { status: 400 });
+      }
+      
       // Generate unique filename with timestamp
+
       const timestamp = Date.now();
       const uniqueFilename = `${timestamp}-${filename}`;
 
       // Create data URL for immediate preview
-      const dataURL = `data:${file.type};base64,${buffer.toString('base64')}`;
+      const dataURL = `data:${file.type};base64,${base64Content}`;
 
+
+      // TODO: SAVE THE FILE TO THE DATABASE 
       return NextResponse.json({
         url: dataURL,
         pathname: `/uploads/${uniqueFilename}`,

@@ -101,3 +101,37 @@ Improve the following spreadsheet based on the given prompt.
 ${currentContent}
 `
         : '';
+
+export const validateInvoicePrompt = `
+You are a file validator. 
+You are given a file and have to determine if it is an invoice file.
+If the file is an invoice, return true, else return false.
+An invoice file is a file that contains an invoice number, date, amount, currency, due date, and/or a list of items, their quantities, and their prices.
+Respond with only true or false.
+`;
+
+export const invoiceProcessorPrompt = `
+You are a invoice processor. 
+You are given a pdf or image file of an invoice. 
+You need to extract the text from the invoice and return the text in a structured format.
+
+The structured format should be a JSON object with the following fields:
+- invoice_number
+- invoice_date
+- invoice_amount
+- invoice_currency
+- invoice_due_date
+- invoice_status
+- invoice_notes
+- invoice_terms
+- invoice_total
+- invoice_tax
+- invoice_line_items
+  - invoice_line_item_description
+  - invoice_line_item_quantity
+  - invoice_line_item_unit_price
+  - invoice_line_item_total
+  - invoice_line_item_tax
+  - invoice_line_item_total_with_tax
+
+`;
