@@ -76,11 +76,6 @@ export async function POST(request: Request) {
 
     try {
       
-      const isInvoice = await validateInvoiceContent(base64Content);
-
-      if (!isInvoice) {
-        return NextResponse.json({ error: 'File is not an invoice' }, { status: 400 });
-      }
       
       // Generate unique filename with timestamp
 
@@ -95,6 +90,13 @@ export async function POST(request: Request) {
 
       if (isDuplicate) {
         return NextResponse.json({ error: 'File already processed' }, { status: 400 });
+      }
+
+
+      const isInvoice = await validateInvoiceContent(base64Content);
+
+      if (!isInvoice) {
+        return NextResponse.json({ error: 'File is not an invoice' }, { status: 400 });
       }
 
       const invoiceFile = await createInvoiceFile({

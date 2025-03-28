@@ -15,6 +15,13 @@
       "when": 1743126233006,
       "tag": "0001_mushy_doctor_doom",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1743132918700,
+      "tag": "0002_short_black_panther",
+      "breakpoints": true
     }
   ]
 }

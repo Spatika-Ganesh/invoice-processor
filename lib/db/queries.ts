@@ -12,6 +12,7 @@ import {
   message,
   vote,
   invoiceFile,
+  invoice,
 } from './schema';
 import type { BlockKind } from '@/components/block';
 
@@ -366,4 +367,120 @@ export async function getInvoiceFileById(id: string) {
     .from(invoiceFile)
     .where(eq(invoiceFile.id, id));
   return file;
+}
+
+// Create a new invoice
+export async function createInvoice(data: {
+  userId: string;
+  chatId: string;
+  fileId: string;
+  customerName?: string;
+  vendorName?: string;
+  invoiceNumber?: string;
+  invoiceDate?: Date;
+  dueDate?: Date;
+  amount?: number;
+  currency?: string;
+  lineItems?: string; // JSON string of line items
+  rawExtractedText?: string;
+  confidenceScore?: number;
+  status?: 'processing' | 'completed' | 'error';
+}) {
+  const now = new Date();
+  const [newInvoice] = await db
+    .insert(invoice)
+    .values({
+      ...data,
+      status: data.status || 'processing',
+      createdAt: now,
+      updatedAt: now,
+    })
+    .returning();
+  return newInvoice;
+}
+
+// Get invoice by ID
+export async function getInvoiceById({ id }: { id: string }) {
+  const [result] = await db
+    .select()
+    .from(invoice)
+    .where(eq(invoice.id, id));
+  return result;
+}
+
+// Get all invoices for a user
+export async function getInvoicesByUserId({ userId }: { userId: string }) {
+  const invoices = await db
+    .select()
+    .from(invoice)
+    .where(eq(invoice.userId, userId))
+    .orderBy(desc(invoice.createdAt));
+  return invoices;
+}
+
+// Update an invoice
+export async function updateInvoice(data: {
+  id: string;
+  userId: string;
+  customerName?: string;
+  vendorName?: string;
+  invoiceNumber?: string;
+  invoiceDate?: Date;
+  dueDate?: Date;
+  amount?: number;
+  currency?: string;
+  lineItems?: string;
+  rawExtractedText?: string;
+  confidenceScore?: number;
+  status?: 'processing' | 'completed' | 'error';
+}) {
+  const { id, userId, ...updateData } = data;
+  const [updatedInvoice] = await db
+    .update(invoice)
+    .set({
+      ...updateData,
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(invoice.id, id),
+        eq(invoice.userId, userId)
+      )
+    )
+    .returning();
+  return updatedInvoice;
+}
+
+// Delete an invoice
+export async function deleteInvoice({ id, userId }: { id: string; userId: string }) {
+  const [deletedInvoice] = await db
+    .delete(invoice)
+    .where(
+      and(
+        eq(invoice.id, id),
+        eq(invoice.userId, userId)
+      )
+    )
+    .returning();
+  return deletedInvoice;
+}
+
+// Check for duplicate invoice number for a user
+export async function checkDuplicateInvoiceNumber({
+  userId,
+  invoiceNumber,
+}: {
+  userId: string;
+  invoiceNumber: string;
+}) {
+  const [existingInvoice] = await db
+    .select()
+    .from(invoice)
+    .where(
+      and(
+        eq(invoice.userId, userId),
+        eq(invoice.invoiceNumber, invoiceNumber)
+      )
+    );
+  return existingInvoice !== undefined;
 }

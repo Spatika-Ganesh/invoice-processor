@@ -106,7 +106,8 @@ export const validateInvoicePrompt = `
 You are a file validator. 
 You are given a file and have to determine if it is an invoice file.
 If the file is an invoice, return true, else return false.
-An invoice file is a file that contains an invoice number, date, amount, currency, due date, and/or a list of items, their quantities, and their prices.
+An invoice file is a file that requests payment from a customer for goods or services.
+
 Respond with only true or false.
 `;
 

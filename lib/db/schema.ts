@@ -121,3 +121,49 @@ export const invoiceFile = sqliteTable(
 );
 
 export type InvoiceFile = InferSelectModel<typeof invoiceFile>;
+
+export const invoice = sqliteTable(
+  'Invoice',
+  {
+    id: text('id').primaryKey().notNull().$defaultFn(() => {
+      return crypto.randomUUID();
+    }),
+    userId: text('userId').notNull(),
+    chatId: text('chatId')
+      .notNull()
+      .references(() => chat.id),
+
+    fileId: text('fileId')
+      .notNull()
+      .references(() => invoiceFile.id),
+    status: text('status')
+      .notNull()
+      .default('processing')
+      .$type<'processing' | 'completed' | 'error'>(),
+    
+    // Invoice information
+    customerName: text('customerName'),
+    vendorName: text('vendorName'),
+    invoiceNumber: text('invoiceNumber'),
+    invoiceDate: integer('invoiceDate', { mode: 'timestamp' }),
+    dueDate: integer('dueDate', { mode: 'timestamp' }),
+    amount: integer('amount'), // Store as cents to avoid floating point issues
+    currency: text('currency'),
+    
+    // Line items as JSON array
+    lineItems: text('lineItems'), // Will store JSON string of array of {description, quantity, unitPrice, total}
+    
+    // Metadata
+    rawExtractedText: text('rawExtractedText'),
+    confidenceScore: integer('confidenceScore'),
+    
+    // Tracking
+    createdAt: integer('createdAt', { mode: 'timestamp' }).notNull(),
+    updatedAt: integer('updatedAt', { mode: 'timestamp' }).notNull(),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.id] }),
+  }),
+);
+
+export type Invoice = InferSelectModel<typeof invoice>;

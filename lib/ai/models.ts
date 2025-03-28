@@ -3,7 +3,7 @@ import { fireworks } from '@ai-sdk/fireworks';
 import { anthropic } from '@ai-sdk/anthropic';
 import { customProvider, extractReasoningMiddleware, wrapLanguageModel } from 'ai';
 
-export const DEFAULT_CHAT_MODEL: string = 'chat-model-large';
+export const DEFAULT_CHAT_MODEL: string = 'pdf-model';
 
 export const myProvider = customProvider({
   languageModels: {
@@ -32,7 +32,7 @@ interface ChatModel {
 export const chatModels: Array<ChatModel> = [
   {
     id: 'pdf-model',
-    name: 'PDF Processing model',
-    description: 'Claude 3.5 Sonnet model for working with pdfs',
+    name: 'Invoice Processor',
+    description: 'Claude 3.5 Sonnet model optimized for invoice processing',
   },
 ];
