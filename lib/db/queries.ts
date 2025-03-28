@@ -373,7 +373,6 @@ export async function getInvoiceFileById(id: string) {
 export async function createInvoice(data: {
   userId: string;
   chatId: string;
-  fileId: string;
   customerName?: string;
   vendorName?: string;
   invoiceNumber?: string;
@@ -393,7 +392,7 @@ export async function createInvoice(data: {
       ...data,
       status: data.status || 'processing',
       createdAt: now,
-      updatedAt: now,
+      updatedAt: now
     })
     .returning();
   return newInvoice;

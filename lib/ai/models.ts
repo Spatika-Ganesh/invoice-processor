@@ -32,7 +32,12 @@ interface ChatModel {
 export const chatModels: Array<ChatModel> = [
   {
     id: 'pdf-model',
-    name: 'Invoice Processor',
+    name: 'Anthropic Invoice Processor',
     description: 'Claude 3.5 Sonnet model optimized for invoice processing',
+  },
+  {
+    id: 'chat-model-large',
+    name: 'OpenAI Chat Model',
+    description: 'OpenAI chat model for working with blocks',
   },
 ];

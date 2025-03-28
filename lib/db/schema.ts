@@ -133,9 +133,6 @@ export const invoice = sqliteTable(
       .notNull()
       .references(() => chat.id),
 
-    fileId: text('fileId')
-      .notNull()
-      .references(() => invoiceFile.id),
     status: text('status')
       .notNull()
       .default('processing')

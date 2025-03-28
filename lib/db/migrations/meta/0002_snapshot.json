@@ -119,13 +119,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "fileId": {
-          "name": "fileId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
         "status": {
           "name": "status",
           "type": "text",
@@ -217,13 +210,6 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
-        },
-        "processedBy": {
-          "name": "processedBy",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
         }
       },
       "indexes": {},
@@ -234,19 +220,6 @@
           "tableTo": "Chat",
           "columnsFrom": [
             "chatId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "Invoice_fileId_InvoiceFile_id_fk": {
-          "name": "Invoice_fileId_InvoiceFile_id_fk",
-          "tableFrom": "Invoice",
-          "tableTo": "InvoiceFile",
-          "columnsFrom": [
-            "fileId"
           ],
           "columnsTo": [
             "id"

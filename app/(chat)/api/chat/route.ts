@@ -25,6 +25,8 @@ import { createDocument } from '@/lib/ai/tools/create-document';
 import { updateDocument } from '@/lib/ai/tools/update-document';
 import { requestSuggestions } from '@/lib/ai/tools/request-suggestions';
 import { getWeather } from '@/lib/ai/tools/get-weather';
+import { processInvoice } from '@/lib/ai/tools/process-invoice';
+import { InvoiceFile } from '@/lib/db/schema';
 
 export const maxDuration = 60;
 
@@ -33,8 +35,13 @@ export async function POST(request: Request) {
     id,
     messages,
     selectedChatModel,
-  }: { id: string; messages: Array<Message>; selectedChatModel: string } =
-    await request.json();
+    invoiceFile,
+  }: { 
+    id: string; 
+    messages: Array<Message>; 
+    selectedChatModel: string; 
+    invoiceFile?: InvoiceFile;
+  } = await request.json();
 
   const session = await auth();
 
@@ -59,6 +66,11 @@ export async function POST(request: Request) {
     messages: [{ ...userMessage, createdAt: new Date(), chatId: id }],
   });
 
+  const isInvoiceProcessing = invoiceFile && messages.some(msg => 
+    msg.role === 'user' && 
+    msg.content.toLowerCase().includes('process')
+  );
+
   return createDataStreamResponse({
     execute: (dataStream) => {
       const result = streamText({
@@ -74,6 +86,7 @@ export async function POST(request: Request) {
                 'createDocument',
                 'updateDocument',
                 'requestSuggestions',
+                'processInvoice',
               ],
         experimental_transform: smoothStream({ chunking: 'word' }),
         experimental_generateMessageId: generateUUID,
@@ -84,6 +97,11 @@ export async function POST(request: Request) {
           requestSuggestions: requestSuggestions({
             session,
             dataStream,
+          }),
+          processInvoice: processInvoice({
+            session,
+            chatId: id,
+            invoiceFileId: invoiceFile?.id,
           }),
         },
         onFinish: async ({ response, reasoning }) => {
@@ -105,8 +123,6 @@ export async function POST(request: Request) {
                   };
                 }),
               });
-              // TODO: save the invoice to the database
-              
             } catch (error) {
               console.error('Failed to save chat');
             }
@@ -122,8 +138,9 @@ export async function POST(request: Request) {
         sendReasoning: true,
       });
     },
-    onError: () => {
-      return 'Oops, an error occured!';
+    onError: (error) => {
+      console.error('Failed to stream text', error);
+      return 'Oops, an error occured!' + error;
     },
   });
 }

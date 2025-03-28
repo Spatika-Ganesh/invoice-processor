@@ -2,7 +2,6 @@ CREATE TABLE `Invoice` (
 	`id` text PRIMARY KEY NOT NULL,
 	`userId` text NOT NULL,
 	`chatId` text NOT NULL,
-	`fileId` text NOT NULL,
 	`status` text DEFAULT 'processing' NOT NULL,
 	`customerName` text,
 	`vendorName` text,
@@ -16,7 +15,5 @@ CREATE TABLE `Invoice` (
 	`confidenceScore` integer,
 	`createdAt` integer NOT NULL,
 	`updatedAt` integer NOT NULL,
-	`processedBy` text NOT NULL,
 	FOREIGN KEY (`chatId`) REFERENCES `Chat`(`id`) ON UPDATE no action ON DELETE no action,
-	FOREIGN KEY (`fileId`) REFERENCES `InvoiceFile`(`id`) ON UPDATE no action ON DELETE no action
 );
