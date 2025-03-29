@@ -22,8 +22,8 @@ function PureSuggestedActions({ chatId, append }: SuggestedActionsProps) {
     },
     {
       title: 'Create sheet',
-      label: 'with all invoices',
-      action: 'Create sheet with all invoices',
+      label: 'to view all invoices',
+      action: 'Create sheet to view all invoices',
     },
     {
       title: 'Help me write an essay',

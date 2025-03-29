@@ -21,7 +21,7 @@ const FileSchema = z.object({
 });
 
 async function validateInvoiceContent(content: string): Promise<{ 
-  isValid: boolean; 
+  isInvoice: boolean; 
   error?: unknown;
 }> {
   const model = myProvider.languageModel('pdf-model');
@@ -31,7 +31,7 @@ async function validateInvoiceContent(content: string): Promise<{
       system: validateInvoicePrompt,
       prompt: content,
       schema: z.object({
-        isValid: z.boolean(),
+        isInvoice: z.boolean(),
         invoiceNumber: z.string().optional(),
         amount: z.number().optional(),
         vendorName: z.string().optional(),
@@ -39,11 +39,11 @@ async function validateInvoiceContent(content: string): Promise<{
     });
 
     return { 
-      isValid: object.isValid
+        isInvoice: object.isInvoice
     };
   } catch (error) {
     console.error("Error validating invoice content", error);
-    return { isValid: false, error: error };
+    return { isInvoice: false, error: error };
   }
 }
 export async function POST(request: Request) {
@@ -102,7 +102,7 @@ export async function POST(request: Request) {
       else {
         const isInvoice = await validateInvoiceContent(base64Content);
 
-        if (!isInvoice.isValid) {
+        if (!isInvoice.isInvoice) {
           return NextResponse.json({ 
             error: 'File is not an invoice or error while validating invoice content', 
             details: isInvoice.error 

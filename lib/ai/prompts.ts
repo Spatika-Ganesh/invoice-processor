@@ -103,10 +103,10 @@ ${currentContent}
         : '';
 
 export const validateInvoicePrompt = `
-You are a file validator. 
-You are given a file and have to determine if it is an invoice file.
-If the file is an invoice, return true, else return false.
-An invoice file is a file that requests payment from a customer for goods or services.
+Process the given document and determine if it is an invoice.
+If it is an invoice, return isInvoice as true and additionally extract the invoice number, vendor name and amount due from the invoice.
+If it is not an invoice, return isInvoice as false. DO not generate any other text or comments.
 
-Respond with only true or false.
+Be very strict in your assessment. Only return true for documents that are clearly invoices. 
+Receipts are not invoices. Account statements are not invoices. Quotes are not invoices.
 `;
