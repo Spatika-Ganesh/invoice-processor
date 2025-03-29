@@ -7,7 +7,7 @@ import {
   UndoIcon,
 } from '@/components/icons';
 import { SpreadsheetEditor } from '@/components/sheet-editor';
-import { ArrowUpDownIcon } from 'lucide-react';
+import { ArrowDownIcon } from 'lucide-react';
 import { parse, unparse } from 'papaparse';
 import { toast } from 'sonner';
 
@@ -116,7 +116,7 @@ export const sheetBlock = new Block<'sheet', Metadata>({
       },
     },
     {
-      icon: <ArrowUpDownIcon size={18} />,
+      icon: <ArrowDownIcon size={18} />,
       label: 'Date',
       description: 'Sort by Date',
       onClick: ({ content, onSaveContent }) => {
@@ -138,7 +138,7 @@ export const sheetBlock = new Block<'sheet', Metadata>({
       },
     },
     {
-      icon: <ArrowUpDownIcon size={18} />,
+      icon: <ArrowDownIcon size={18} />,
       label: 'Amount',
       description: 'Sort by Amount',
       onClick: ({ content, onSaveContent }) => {
@@ -160,7 +160,7 @@ export const sheetBlock = new Block<'sheet', Metadata>({
       },
     },
     {
-      icon: <ArrowUpDownIcon size={18} />,
+        icon: <ArrowDownIcon size={18} />,
       label: 'Vendor',
       description: 'Sort by Vendor',
       onClick: ({ content, onSaveContent }) => {

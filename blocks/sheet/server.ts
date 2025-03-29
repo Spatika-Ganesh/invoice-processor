@@ -209,7 +209,7 @@ export const sheetDocumentHandler = createDocumentHandler<'sheet'>({
         invoice.amount ? (invoice.amount / 100).toFixed(2) : '',
         invoice.currency || 'USD',
         invoice.status,
-        escapeCSVField(invoice.lineItems || ''),
+        invoice.lineItems || '',
         new Date(invoice.createdAt).toISOString().split('T')[0]
       ]);
 
