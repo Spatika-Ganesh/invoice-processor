@@ -452,6 +452,7 @@ function PureBlock({
                 metadata={metadata}
                 setMetadata={setMetadata}
                 onSaveContent={(content, debounce = false) => saveContent(content, debounce)}
+                appendMessage={append}
               />
             </div>
 

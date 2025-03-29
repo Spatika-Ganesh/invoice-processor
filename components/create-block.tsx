@@ -13,6 +13,7 @@ export type BlockActionContext<M = any> = {
   metadata: M;
   setMetadata: Dispatch<SetStateAction<M>>;
   onSaveContent: (content: string, debounce?: boolean) => void;
+  appendMessage: UseChatHelpers['append'];
 };
 
 type BlockAction<M = any> = {

@@ -91,9 +91,28 @@ export const sheetBlock = new Block<'sheet', Metadata>({
       icon: <SparklesIcon size={18} />,
       // label: 'Save',
       description: 'Save Changes',
-      onClick: ({ content, onSaveContent }) => {
-        onSaveContent(content);
-        toast.success('Changes saved successfully!');
+      onClick: ({ content, onSaveContent, appendMessage }) => {
+        // Check if this is an invoice sheet by looking for the ID column
+        const parsed = parse<string[]>(content, { skipEmptyLines: true });
+        if (parsed.data.length >= 2) {
+          const headers = parsed.data[0];
+          const hasIdColumn = headers.includes('ID');
+          
+          if (hasIdColumn) {
+            // For invoice sheets, trigger the updateDocument function
+            appendMessage({
+              role: 'user',
+              content: 'Update the invoice data with the changes in the spreadsheet.',
+            });
+            toast.success('Invoice changes saved successfully!');
+          } else {
+            onSaveContent(content);
+            toast.success('Changes saved successfully!');
+          }
+        } else {
+          onSaveContent(content);
+          toast.success('Changes saved successfully!');
+        }
       },
     },
     {

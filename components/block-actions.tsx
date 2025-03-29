@@ -5,6 +5,7 @@ import { type Dispatch, memo, type SetStateAction, useState } from 'react';
 import type { BlockActionContext } from './create-block';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import type { UseChatHelpers } from 'ai/react';
 
 interface BlockActionsProps {
   block: UIBlock;
@@ -15,6 +16,7 @@ interface BlockActionsProps {
   metadata: any;
   setMetadata: Dispatch<SetStateAction<any>>;
   onSaveContent: (content: string, debounce?: boolean) => void;
+  appendMessage: UseChatHelpers['append'];
 }
 
 function PureBlockActions({
@@ -26,6 +28,7 @@ function PureBlockActions({
   metadata,
   setMetadata,
   onSaveContent,
+  appendMessage,
 }: BlockActionsProps) {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -46,6 +49,7 @@ function PureBlockActions({
     metadata,
     setMetadata,
     onSaveContent,
+    appendMessage,
   };
 
   return (
