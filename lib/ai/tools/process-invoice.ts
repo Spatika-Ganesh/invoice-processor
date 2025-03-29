@@ -2,7 +2,7 @@ import { tool, generateObject } from 'ai';
 import { z } from 'zod';
 import type { Session } from 'next-auth';
 import { myProvider } from '@/lib/ai/models';
-import { createInvoice, saveMessages } from '@/lib/db/queries';
+import { checkDuplicateInvoice, createInvoice, saveMessages } from '@/lib/db/queries';
 import { generateUUID } from '@/lib/utils';
 
 const lineItemSchema = z.object({
@@ -27,9 +27,10 @@ interface ProcessInvoiceProps {
   session: Session;
   chatId: string;
   invoiceFileId?: string;
+  chatModel: string;
 }
 
-export const processInvoice = ({ session, chatId, invoiceFileId }: ProcessInvoiceProps) =>
+export const processInvoice = ({ session, chatId, invoiceFileId, chatModel }: ProcessInvoiceProps) =>
   tool({
     description: 'Process an invoice document and extract structured information.',
     parameters: z.object({
@@ -39,7 +40,7 @@ export const processInvoice = ({ session, chatId, invoiceFileId }: ProcessInvoic
     execute: async ({ fileId, content }) => {
       try {
         const { object } = await generateObject({
-          model: myProvider.languageModel('chat-model-large'),
+          model: myProvider.languageModel(chatModel),
           system: 'Extract structured information from the invoice content. Return a JSON object with the specified schema.',
           prompt: content,
           schema: invoiceSchema,
@@ -57,11 +58,23 @@ export const processInvoice = ({ session, chatId, invoiceFileId }: ProcessInvoic
             }]
           });
 
+          const existingInvoice = await checkDuplicateInvoice({
+            userId: session.user.id,
+            invoiceNumber: object.invoiceNumber,
+            vendorName: object.vendorName,
+            amount: object.amount
+          });
+
+          if (existingInvoice) {
+            return {
+              success: true,
+              message: 'Invoice already exists',
+            };
+          }
           // Save the invoice to the database
           await createInvoice({
             userId: session.user.id,
             chatId,
-            // TODO: Add fileId to the invoice - FOREIGN KEY ERROR
             customerName: object.customerName,
             vendorName: object.vendorName,
             invoiceNumber: object.invoiceNumber,
@@ -72,7 +85,6 @@ export const processInvoice = ({ session, chatId, invoiceFileId }: ProcessInvoic
             lineItems: JSON.stringify(object.lineItems),
             rawExtractedText: content,
             confidenceScore: 100,
-            
             status: 'completed',
             
           });

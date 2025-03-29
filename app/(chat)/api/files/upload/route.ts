@@ -5,7 +5,7 @@ import { validateInvoicePrompt } from '@/lib/ai/prompts';
 import { myProvider } from '@/lib/ai/models';
 import { streamObject, generateObject } from 'ai';
 import { LanguageModelV1Prompt } from 'ai';
-import { checkDuplicateInvoiceFile, createInvoiceFile } from '@/lib/db/queries';
+import { checkDuplicateInvoice, checkDuplicateInvoiceFile, createInvoiceFile } from '@/lib/db/queries';
 // Use Blob instead of File since File is not available in Node.js environment
 const FileSchema = z.object({
   file: z
@@ -20,7 +20,10 @@ const FileSchema = z.object({
     ),
 });
 
-async function validateInvoiceContent(content: string): Promise<boolean> {
+async function validateInvoiceContent(content: string): Promise<{ 
+  isValid: boolean; 
+  error?: unknown;
+}> {
   const model = myProvider.languageModel('pdf-model');
   try {
     const { object } = await generateObject({
@@ -28,14 +31,19 @@ async function validateInvoiceContent(content: string): Promise<boolean> {
       system: validateInvoicePrompt,
       prompt: content,
       schema: z.object({
-        isValid: z.boolean()
+        isValid: z.boolean(),
+        invoiceNumber: z.string().optional(),
+        amount: z.number().optional(),
+        vendorName: z.string().optional(),
       }),
     });
 
-    return object.isValid;
+    return { 
+      isValid: object.isValid
+    };
   } catch (error) {
     console.error("Error validating invoice content", error);
-    return false;
+    return { isValid: false, error: error };
   }
 }
 export async function POST(request: Request) {
@@ -85,31 +93,36 @@ export async function POST(request: Request) {
       // Create data URL for immediate preview
       const dataURL = `data:${file.type};base64,${base64Content}`;
 
-      // TODO: If duplicate file, return that file id and allow to query maybe
-      // const isDuplicate = await checkDuplicateInvoiceFile({ userId: session.user.id, content: base64Content });
+      const isPreviouslyUploaded = await checkDuplicateInvoiceFile({ userId: session.user.id, content: base64Content });
 
-      // if (isDuplicate) {
-      //   return NextResponse.json({ error: 'File already processed' }, { status: 400 });
-      // }
+      let invoiceFileId = '';
+      if (isPreviouslyUploaded !== undefined) {
+        invoiceFileId = isPreviouslyUploaded.id;
+      }
+      else {
+        const isInvoice = await validateInvoiceContent(base64Content);
 
-      // TODO: Validate invoice content - commented out for rate limiting errors
-      const isInvoice = await validateInvoiceContent(base64Content);
+        if (!isInvoice.isValid) {
+          return NextResponse.json({ 
+            error: 'File is not an invoice or error while validating invoice content', 
+            details: isInvoice.error 
+          }, { status: 400 });
+        }
 
-      if (!isInvoice) {
-        return NextResponse.json({ error: 'File is not an invoice' }, { status: 400 });
+        const invoiceFile = await createInvoiceFile({
+          userId: session.user.id,
+          title: filename,
+          kind: file.type.startsWith('image/') ? 'image' : 'pdf',
+          content: base64Content,
+        });
+        invoiceFileId = invoiceFile.id;
       }
 
-      const invoiceFile = await createInvoiceFile({
-        userId: session.user.id,
-        title: filename,
-        kind: file.type.startsWith('image/') ? 'image' : 'pdf',
-        content: base64Content,
-      });
       return NextResponse.json({
         url: dataURL,
         pathname: `/uploads/${uniqueFilename}`,
         contentType: file.type,
-        invoiceFileId: invoiceFile.id,
+        invoiceFileId: invoiceFileId,
       });
     } catch (error) {
       return NextResponse.json({ error: 'Upload failed' }, { status: 500 });

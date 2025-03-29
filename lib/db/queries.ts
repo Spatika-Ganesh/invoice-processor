@@ -357,7 +357,7 @@ export async function checkDuplicateInvoiceFile({
         eq(invoiceFile.content, content)
       )
     );
-  return existingFile !== undefined;
+  return existingFile;
 }
 
 
@@ -496,4 +496,38 @@ export async function checkDuplicateInvoiceNumber({
       )
     );
   return existingInvoice !== undefined;
+}
+
+// Check for duplicate invoice based on multiple fields
+export async function checkDuplicateInvoice({
+  userId,
+  invoiceNumber,
+  vendorName,
+  amount,
+}: {
+  userId: string;
+  invoiceNumber?: string;
+  vendorName?: string;
+  amount?: number;
+}) {
+  const conditions = [eq(invoice.userId, userId)];
+  
+  if (invoiceNumber) {
+    conditions.push(eq(invoice.invoiceNumber, invoiceNumber));
+  }
+  
+  if (vendorName) {
+    conditions.push(eq(invoice.vendorName, vendorName));
+  }
+  
+  if (amount) {
+    conditions.push(eq(invoice.amount, amount));
+  }
+
+  const [existingInvoice] = await db
+    .select()
+    .from(invoice)
+    .where(and(...conditions));
+
+  return existingInvoice;
 }

@@ -145,6 +145,7 @@ export const sheetDocumentHandler = createDocumentHandler<'sheet'>({
           currency: row[currencyIndex] || undefined,
           status: row[statusIndex] as 'processing' | 'completed' | 'error' || undefined,
         });
+        console.log('Invoice updated:', id);
       }
 
       // Fetch fresh data after updates

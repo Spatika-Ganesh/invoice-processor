@@ -3,7 +3,7 @@
 An conversational interface where company admins can upload vendor invoices and uses an AI agent to automatically extract, validate, and manage invoice information.
 
 - Type "process this invoice" with an invoice file and the AI agent will extract the information and store details in the database.
-- Type "view invoices in sheet" to open a sheet display which shows key information of the extracted invoice information and allows to edit information, and also has actions to sort the data by vendor, amount and Invoice Date.
+- Type "create sheet to view invoices" or "view invoices in sheet" to open a sheet display which shows key information of the extracted invoice information and allows to edit information, and also has actions to sort the data by vendor, amount and Invoice Date.
 
 
 ## Features

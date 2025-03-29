@@ -102,6 +102,7 @@ export async function POST(request: Request) {
             session,
             chatId: id,
             invoiceFileId: invoiceFile?.id,
+            chatModel: selectedChatModel,
           }),
         },
         onFinish: async ({ response, reasoning }) => {

@@ -7,6 +7,7 @@ import {
   UndoIcon,
 } from '@/components/icons';
 import { SpreadsheetEditor } from '@/components/sheet-editor';
+import { ArrowUpDownIcon } from 'lucide-react';
 import { parse, unparse } from 'papaparse';
 import { toast } from 'sonner';
 
@@ -46,7 +47,7 @@ export const sheetBlock = new Block<'sheet', Metadata>({
   actions: [
     {
       icon: <UndoIcon size={18} />,
-      label: 'Previous',
+      // label: 'Previous',
       description: 'View Previous version',
       onClick: ({ handleVersionChange }) => {
         handleVersionChange('prev');
@@ -60,7 +61,7 @@ export const sheetBlock = new Block<'sheet', Metadata>({
     },
     {
       icon: <RedoIcon size={18} />,
-      label: 'Next',
+      // label: 'Next',
       description: 'View Next version',
       onClick: ({ handleVersionChange }) => {
         handleVersionChange('next');
@@ -74,7 +75,7 @@ export const sheetBlock = new Block<'sheet', Metadata>({
     },
     {
       icon: <CopyIcon />,
-      label: 'Copy CSV',
+      // label: 'Copy CSV',
       description: 'Copy as .csv',
       onClick: ({ content }) => {
         const parsed = parse<string[]>(content, { skipEmptyLines: true });
@@ -88,7 +89,7 @@ export const sheetBlock = new Block<'sheet', Metadata>({
     },
     {
       icon: <SparklesIcon size={18} />,
-      label: 'Save',
+      // label: 'Save',
       description: 'Save Changes',
       onClick: ({ content, onSaveContent }) => {
         onSaveContent(content);
@@ -96,8 +97,8 @@ export const sheetBlock = new Block<'sheet', Metadata>({
       },
     },
     {
-      icon: <LineChartIcon size={18} />,
-      label: 'Sort Date',
+      icon: <ArrowUpDownIcon size={18} />,
+      label: 'Date',
       description: 'Sort by Date',
       onClick: ({ content, onSaveContent }) => {
         const parsed = parse<string[]>(content, { skipEmptyLines: true });
@@ -118,8 +119,8 @@ export const sheetBlock = new Block<'sheet', Metadata>({
       },
     },
     {
-      icon: <LineChartIcon size={18} />,
-      label: 'Sort Amount',
+      icon: <ArrowUpDownIcon size={18} />,
+      label: 'Amount',
       description: 'Sort by Amount',
       onClick: ({ content, onSaveContent }) => {
         const parsed = parse<string[]>(content, { skipEmptyLines: true });
@@ -140,8 +141,8 @@ export const sheetBlock = new Block<'sheet', Metadata>({
       },
     },
     {
-      icon: <LineChartIcon size={18} />,
-      label: 'Sort Vendor',
+      icon: <ArrowUpDownIcon size={18} />,
+      label: 'Vendor',
       description: 'Sort by Vendor',
       onClick: ({ content, onSaveContent }) => {
         const parsed = parse<string[]>(content, { skipEmptyLines: true });

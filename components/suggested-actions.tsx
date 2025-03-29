@@ -21,9 +21,9 @@ function PureSuggestedActions({ chatId, append }: SuggestedActionsProps) {
       action: 'Process this invoice from an image/pdf',
     },
     {
-      title: 'View all invoices',
-      label: 'in sheet',
-      action: 'View all invoices in sheet',
+      title: 'Create sheet',
+      label: 'with all invoices',
+      action: 'Create sheet with all invoices',
     },
     {
       title: 'Help me write an essay',
@@ -34,7 +34,7 @@ function PureSuggestedActions({ chatId, append }: SuggestedActionsProps) {
       title: 'What is the weather',
       label: 'in San Francisco?',
       action: 'What is the weather in San Francisco?',
-    },
+    }
   ];
 
   return (
