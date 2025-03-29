@@ -6,6 +6,46 @@ import { z } from 'zod';
 import { getInvoicesByUserId, updateInvoice } from '@/lib/db/queries';
 import { parse, ParseResult } from 'papaparse';
 
+// Add line item schema for validation
+const lineItemSchema = z.object({
+  description: z.string().optional(),
+  quantity: z.number().optional(),
+  unitPrice: z.number().optional(),
+  total: z.number().optional()
+});
+
+// Helper function to validate and format line items
+function formatLineItems(lineItemsStr: string | undefined): string | undefined {
+  if (!lineItemsStr) return undefined;
+  
+  try {
+    // Try to parse the string as JSON
+    const parsed = JSON.parse(lineItemsStr);
+    
+    // Validate that it's an array
+    if (!Array.isArray(parsed)) {
+      console.error('Line items must be an array');
+      return undefined;
+    }
+    
+    // Validate each line item
+    const validatedItems = parsed.map(item => {
+      try {
+        return lineItemSchema.parse(item);
+      } catch (error) {
+        console.error('Invalid line item format:', error);
+        return null;
+      }
+    }).filter(Boolean);
+    
+    // Return the validated items as a JSON string
+    return JSON.stringify(validatedItems);
+  } catch (error) {
+    console.error('Failed to parse line items:', error);
+    return undefined;
+  }
+}
+
 // Helper function to escape CSV fields
 const escapeCSVField = (field: string) => {
   if (field.includes(',') || field.includes('"') || field.includes('\n')) {
@@ -37,6 +77,7 @@ export const sheetDocumentHandler = createDocumentHandler<'sheet'>({
         'Amount',
         'Currency',
         'Status',
+        'Line Items',
         'Created At'
       ];
 
@@ -50,6 +91,7 @@ export const sheetDocumentHandler = createDocumentHandler<'sheet'>({
         invoice.amount ? (invoice.amount / 100).toFixed(2) : '', // Convert cents to dollars
         invoice.currency || 'USD',
         invoice.status,
+        invoice.lineItems || '',
         new Date(invoice.createdAt).toISOString().split('T')[0]
       ]);
 
@@ -122,6 +164,7 @@ export const sheetDocumentHandler = createDocumentHandler<'sheet'>({
       const amountIndex = headers.indexOf('Amount');
       const currencyIndex = headers.indexOf('Currency');
       const statusIndex = headers.indexOf('Status');
+      const lineItemsIndex = headers.indexOf('Line Items');
 
       // Update each modified row in the database
       for (const row of rows) {
@@ -132,6 +175,9 @@ export const sheetDocumentHandler = createDocumentHandler<'sheet'>({
 
         // Convert amount back to cents for storage
         const amount = row[amountIndex] ? Math.round(parseFloat(row[amountIndex]) * 100) : undefined;
+
+        // Format and validate line items
+        const formattedLineItems = formatLineItems(row[lineItemsIndex]);
 
         await updateInvoice({
           id,
@@ -144,6 +190,7 @@ export const sheetDocumentHandler = createDocumentHandler<'sheet'>({
           amount,
           currency: row[currencyIndex] || undefined,
           status: row[statusIndex] as 'processing' | 'completed' | 'error' || undefined,
+          lineItems: formattedLineItems,
         });
         console.log('Invoice updated:', id);
       }
@@ -162,6 +209,7 @@ export const sheetDocumentHandler = createDocumentHandler<'sheet'>({
         invoice.amount ? (invoice.amount / 100).toFixed(2) : '',
         invoice.currency || 'USD',
         invoice.status,
+        escapeCSVField(invoice.lineItems || ''),
         new Date(invoice.createdAt).toISOString().split('T')[0]
       ]);
 

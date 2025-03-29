@@ -8,6 +8,17 @@ import { cn } from '@/lib/utils';
 
 import 'react-data-grid/lib/styles.css';
 
+// Add custom styles for editing state
+const customStyles = `
+  .rdg-cell[aria-selected="true"] {
+    background-color: rgb(24 24 27) !important; /* dark:bg-zinc-950 */
+  }
+  .rdg-cell[aria-selected="true"] input {
+    background-color: rgb(24 24 27) !important;
+    color: rgb(250 250 250) !important; /* dark:text-zinc-50 */
+  }
+`;
+
 type SheetEditorProps = {
   content: string;
   saveContent: (content: string, isCurrentVersion: boolean) => void;
@@ -155,23 +166,26 @@ const PureSpreadsheetEditor = ({
   }, [localRows, sortColumn, sortDirection]);
 
   return (
-    <DataGrid
-      className={theme === 'dark' ? 'rdg-dark' : 'rdg-light'}
-      columns={columns}
-      rows={sortedRows}
-      enableVirtualization
-      onRowsChange={handleRowsChange}
-      onCellClick={(args) => {
-        if (args.column.key !== 'rowNumber') {
-          args.selectCell(true);
-        }
-      }}
-      style={{ height: '100%' }}
-      defaultColumnOptions={{
-        resizable: true,
-        sortable: true,
-      }}
-    />
+    <>
+      <style>{customStyles}</style>
+      <DataGrid
+        className={theme === 'dark' ? 'rdg-dark' : 'rdg-light'}
+        columns={columns}
+        rows={sortedRows}
+        enableVirtualization
+        onRowsChange={handleRowsChange}
+        onCellClick={(args) => {
+          if (args.column.key !== 'rowNumber') {
+            args.selectCell(true);
+          }
+        }}
+        style={{ height: '100%' }}
+        defaultColumnOptions={{
+          resizable: true,
+          sortable: true,
+        }}
+      />
+    </>
   );
 };
 
