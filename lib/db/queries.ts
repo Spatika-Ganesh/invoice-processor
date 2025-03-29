@@ -369,6 +369,20 @@ export async function getInvoiceFileById(id: string) {
   return file;
 }
 
+export async function getInvoiceFilesByUserId({ userId }: { userId: string }) {
+  try {
+    const files = await db
+      .select()
+      .from(invoiceFile)
+      .where(eq(invoiceFile.userId, userId))
+      .orderBy(desc(invoiceFile.createdAt));
+    return files;
+  } catch (error) {
+    console.error('Failed to get invoice files by user from database', error);
+    throw error;
+  }
+}
+
 // Create a new invoice
 export async function createInvoice(data: {
   userId: string;

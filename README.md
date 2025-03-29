@@ -1,3 +1,11 @@
+## Invoice Processor Chatbot AI Agent
+
+An conversational interface where company admins can upload vendor invoices and uses an AI agent to automatically extract, validate, and manage invoice information.
+
+- Type "process this invoice" with an invoice file and the AI agent will extract the information and store details in the database.
+- Type "view invoices in sheet" to open a sheet display which shows key information of the extracted invoice information and allows to edit information, and also has actions to sort the data by vendor, amount and Invoice Date.
+
+
 ## Features
 
 - [Next.js](https://nextjs.org) App Router
@@ -13,12 +21,12 @@
 
 ## Model Providers
 
-This template ships with OpenAI `gpt-4o` as the default. However, with the [AI SDK](https://sdk.vercel.ai/docs), you can switch LLM providers to [OpenAI](https://openai.com), [Anthropic](https://anthropic.com), [Cohere](https://cohere.com/), and [many more](https://sdk.vercel.ai/providers/ai-sdk-providers) with just a few lines of code.
+This implementation ships with OpenAI `gpt-4o` and Anthropic `claude-3-5-sonnet-20240620`. through  [AI SDK](https://sdk.vercel.ai/docs)'s support with LLM providers for [OpenAI](https://openai.com), [Anthropic](https://anthropic.com).
 
 
 ## Running locally
 
-You will need to use the environment variables [defined in `.env.example`](.env.example) to run Next.js AI Chatbot. 
+Add the API keys to use the environment variables [defined in `.env.example`](.env.example) to run Next.js AI Chatbot. 
 
 ```bash
 pnpm install
@@ -26,4 +34,4 @@ pnpm db:migrate
 pnpm dev
 ```
 
-Your app template should now be running on [localhost:3000](http://localhost:3000/).
+The invoice processor app should now be running on [localhost:3000](http://localhost:3000/).

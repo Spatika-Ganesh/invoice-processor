@@ -93,11 +93,11 @@ export async function POST(request: Request) {
       // }
 
       // TODO: Validate invoice content - commented out for rate limiting errors
-      // const isInvoice = await validateInvoiceContent(base64Content);
+      const isInvoice = await validateInvoiceContent(base64Content);
 
-      // if (!isInvoice) {
-      //   return NextResponse.json({ error: 'File is not an invoice' }, { status: 400 });
-      // }
+      if (!isInvoice) {
+        return NextResponse.json({ error: 'File is not an invoice' }, { status: 400 });
+      }
 
       const invoiceFile = await createInvoiceFile({
         userId: session.user.id,

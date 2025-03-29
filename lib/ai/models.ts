@@ -37,7 +37,7 @@ export const chatModels: Array<ChatModel> = [
   },
   {
     id: 'chat-model-large',
-    name: 'OpenAI Chat Model',
-    description: 'OpenAI chat model for working with blocks',
+    name: 'OpenAI Image-Only Invoice Processor',
+    description: 'OpenAI model for image only invoice processing',
   },
 ];
